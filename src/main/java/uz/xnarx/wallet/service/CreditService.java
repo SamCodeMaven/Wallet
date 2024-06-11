@@ -1,5 +1,6 @@
 package uz.xnarx.wallet.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class CreditService {
         return dto;
     }
 
+    @Transactional
     public ApiResponse saveOrEditCredit(CreditDto dto) {
         try {
             Credit credit=new Credit();
@@ -49,6 +51,7 @@ public class CreditService {
         }
     }
 
+    @Transactional
     public ApiResponse getAllCredit(Integer page, Integer size) {
         Page<Credit> creditPage=creditRepository.findAllByOrderByEndDateDesc(CommonUtills.simplePageable(page,size));
 
@@ -58,6 +61,8 @@ public class CreditService {
                 creditPage.getTotalPages(),
                 creditPage.getContent().stream().map(this::getCreditDtoFromCredit).collect(Collectors.toList()));
     }
+
+    @Transactional
     public ApiResponse removeCreditById(String id){
         try {
             System.out.println(creditRepository.findById(id));
@@ -69,6 +74,7 @@ public class CreditService {
         }
     }
 
+    @Transactional
     public ApiResponse getCreditByName(String name, Integer page, Integer size) {
         try {
             Page<Credit> flowPage = creditRepository.findAllByNameContainingIgnoreCase(name, CommonUtills.simplePageable(page, size));

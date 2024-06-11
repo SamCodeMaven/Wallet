@@ -1,5 +1,6 @@
 package uz.xnarx.wallet.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class CashFlowService {
     Currency currency;
 
 
+    @Transactional
     public ApiResponse saveCashFlow(CashFlowDto cashFlowDto) {
         try {
             CashFlow cashFlow=new CashFlow();
@@ -41,12 +43,13 @@ public class CashFlowService {
         }
     }
 
+    @Transactional
     public ApiResponse getAllCashFlow(Integer type, Integer page, Integer size) {
         Page<CashFlow> flowPage;
         if (type==1) {
-            flowPage = cashFlowRepository.findAllByCashFlowTypeAndOrderByDateDesc(true,CommonUtills.simplePageable(page, size));
+            flowPage = cashFlowRepository.findAllByCashFlowTypeOrderByDateDesc(true,CommonUtills.simplePageable(page, size));
         }else if (type==-1){
-            flowPage = cashFlowRepository.findAllByCashFlowTypeAndOrderByDateDesc(false,CommonUtills.simplePageable(page, size));
+            flowPage = cashFlowRepository.findAllByCashFlowTypeOrderByDateDesc(false,CommonUtills.simplePageable(page, size));
         }else {
             flowPage = cashFlowRepository.findAllByOrderByDateDesc(CommonUtills.simplePageable(page, size));
         }
@@ -76,6 +79,7 @@ public class CashFlowService {
         return flowDto;
     }
 
+    @Transactional
     public ApiResponse removeCashById(String id) {
             try {
                 cashFlowRepository.deleteById(id);
@@ -85,6 +89,7 @@ public class CashFlowService {
             }
     }
 
+    @Transactional
     public ApiResponse getCashByName(String name,Integer page, Integer size) {
 
         try {
