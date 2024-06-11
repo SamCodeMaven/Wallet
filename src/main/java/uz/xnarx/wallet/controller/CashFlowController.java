@@ -44,11 +44,15 @@ public class CashFlowController {
     @GetMapping("/byName/{name}")
     public HttpEntity<?> getCashById(@PathVariable(value = "name")
                                      String name,
+                                     @RequestParam(value = "month",
+                                             defaultValue = ApplicationConstants.DEFAULT_MOTH) Integer month,
+                                     @RequestParam(value = "year",
+                                             defaultValue = ApplicationConstants.DEFAULT_YEAR) Integer year,
                                      @RequestParam(value = "page",
                                              defaultValue = ApplicationConstants.DEFAULT_PAGE_NUMBER) Integer page,
                                      @RequestParam(value = "size",
                                              defaultValue = ApplicationConstants.DEFAULT_PAGE_SIZE) Integer size) {
-        ApiResponse response = cashFlowService.getCashByName(name, page, size);
+        ApiResponse response = cashFlowService.getCashByName(name, month, year, page, size);
         return ResponseEntity.status(response.isSuccess() ? 200 : 409).body(response);
     }
 

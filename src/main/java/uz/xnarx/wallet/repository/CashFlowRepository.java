@@ -20,6 +20,11 @@ public interface CashFlowRepository extends JpaRepository<CashFlow, String> {
 
     Page<CashFlow> findAllByNameContainingIgnoreCase(String name, Pageable pageable);
 
+
+    @Query("SELECT c FROM CashFlow c WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :name, '%')) AND MONTH(c.date) = :month AND YEAR(c.date) = :year ORDER BY c.date DESC")
+    Page<CashFlow> findAllByNameContainingIgnoreCaseAndMonthAndYear(@Param("name") String name, @Param("month") int month, @Param("year") int year, Pageable pageable);
+
+
     @Query("SELECT COALESCE(SUM(c.amount),0.0) FROM CashFlow c WHERE c.curType = TRUE AND c.cashFlowType=TRUE")
     Double sumOfIncomeInUSD();
 

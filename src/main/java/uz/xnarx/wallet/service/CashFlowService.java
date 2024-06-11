@@ -46,45 +46,49 @@ public class CashFlowService {
     @Transactional
     public ApiResponse getAllCashFlow(Integer type, Integer month, Integer year, Integer page, Integer size) {
         Page<CashFlow> flowPage;
-        if (type == 1) {
-            if (month == 0) {
-                flowPage = cashFlowRepository.findAllByCashFlowTypeOrderByDateDesc
-                        (true, CommonUtills.simplePageable(page, size));
+        try {
+            if (type == 1) {
+                if (month == 0) {
+                    flowPage = cashFlowRepository.findAllByCashFlowTypeOrderByDateDesc
+                            (true, CommonUtills.simplePageable(page, size));
+                } else {
+                    flowPage = cashFlowRepository.findAllByCashFlowTypeAndMonthAndYearOrderByDateDesc
+                            (true, month, year, CommonUtills.simplePageable(page, size));
+                }
+            } else if (type == -1) {
+                if (month == 0) {
+                    flowPage = cashFlowRepository.findAllByCashFlowTypeOrderByDateDesc
+                            (false, CommonUtills.simplePageable(page, size));
+                } else {
+                    flowPage = cashFlowRepository.findAllByCashFlowTypeAndMonthAndYearOrderByDateDesc
+                            (false, month, year, CommonUtills.simplePageable(page, size));
+                }
             } else {
-                flowPage = cashFlowRepository.findAllByCashFlowTypeAndMonthAndYearOrderByDateDesc
-                        (true, month, year, CommonUtills.simplePageable(page, size));
+                if (month == 0) {
+                    flowPage = cashFlowRepository.findAllByOrderByDateDesc
+                            (CommonUtills.simplePageable(page, size));
+                } else {
+                    flowPage = cashFlowRepository.findAllByMonthAndYearOrderByDateDesc
+                            (month, year, CommonUtills.simplePageable(page, size));
+                }
             }
-        } else if (type == -1) {
-            if (month == 0) {
-                flowPage = cashFlowRepository.findAllByCashFlowTypeOrderByDateDesc
-                        (false, CommonUtills.simplePageable(page, size));
-            } else {
-                flowPage = cashFlowRepository.findAllByCashFlowTypeAndMonthAndYearOrderByDateDesc
-                        (false, month, year, CommonUtills.simplePageable(page, size));
-            }
-        } else {
-            if (month == 0) {
-                flowPage = cashFlowRepository.findAllByOrderByDateDesc
-                        (CommonUtills.simplePageable(page, size));
-            } else {
-                flowPage = cashFlowRepository.findAllByMonthAndYearOrderByDateDesc
-                        (month, year, CommonUtills.simplePageable(page, size));
-            }
+            Double rate = Double.parseDouble(currency.getRate());
+            Double incomeSumUSD = (cashFlowRepository.sumOfIncomeInUSD() + (cashFlowRepository.sumOfIncomeInUZS() / rate));
+            Double incomeSumUZS = incomeSumUSD * rate;
+            Double outcomeSumUSD = (cashFlowRepository.sumOfOutcomeInUSD() + (cashFlowRepository.sumOfOutcomeInUZS() / rate));
+            Double outcomeSumUZS = outcomeSumUSD * rate;
+            return new ApiResponse("Success",
+                    true,
+                    flowPage.getTotalElements(),
+                    flowPage.getTotalPages(),
+                    incomeSumUSD,
+                    incomeSumUZS,
+                    outcomeSumUSD,
+                    outcomeSumUZS,
+                    flowPage.getContent().stream().map(this::getCashFlowDtoFromCashFlow).collect(Collectors.toList()));
+        } catch (Exception e) {
+            return new ApiResponse(e.getMessage(), false);
         }
-        Double rate = Double.parseDouble(currency.getRate());
-        Double incomeSumUSD = (cashFlowRepository.sumOfIncomeInUSD() + (cashFlowRepository.sumOfIncomeInUZS() / rate));
-        Double incomeSumUZS = incomeSumUSD * rate;
-        Double outcomeSumUSD = (cashFlowRepository.sumOfOutcomeInUSD() + (cashFlowRepository.sumOfOutcomeInUZS() / rate));
-        Double outcomeSumUZS = outcomeSumUSD * rate;
-        return new ApiResponse("Success",
-                true,
-                flowPage.getTotalElements(),
-                flowPage.getTotalPages(),
-                incomeSumUSD,
-                incomeSumUZS,
-                outcomeSumUSD,
-                outcomeSumUZS,
-                flowPage.getContent().stream().map(this::getCashFlowDtoFromCashFlow).collect(Collectors.toList()));
     }
 
     public CashFlowDto getCashFlowDtoFromCashFlow(CashFlow cashFlow) {
@@ -109,11 +113,16 @@ public class CashFlowService {
     }
 
     @Transactional
-    public ApiResponse getCashByName(String name, Integer page, Integer size) {
-
+    public ApiResponse getCashByName(String name, Integer month, Integer year, Integer page, Integer size) {
+        Page<CashFlow> flowPage;
         try {
-            Page<CashFlow> flowPage = cashFlowRepository.findAllByNameContainingIgnoreCase(name, CommonUtills.simplePageable(page, size));
-
+            if (month == 0) {
+                flowPage = cashFlowRepository.findAllByNameContainingIgnoreCase
+                        (name, CommonUtills.simplePageable(page, size));
+            } else {
+                flowPage = cashFlowRepository.findAllByNameContainingIgnoreCaseAndMonthAndYear
+                        (name, month, year, CommonUtills.simplePageable(page, size));
+            }
             return new ApiResponse("CashFlow fount",
                     true,
                     flowPage.getTotalElements(),
