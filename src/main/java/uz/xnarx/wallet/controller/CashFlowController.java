@@ -29,12 +29,16 @@ public class CashFlowController {
     @GetMapping("/getAllCashFlow")//todo income in USD,UZS outcome also same
     public HttpEntity<?> getAllCashFlow(@RequestParam(value = "type",
             defaultValue = ApplicationConstants.DEFAULT_CASH_FLOW_TYPE) Integer type,
+                                        @RequestParam(value = "month",
+                                                defaultValue = ApplicationConstants.DEFAULT_MOTH) Integer month,
+                                        @RequestParam(value = "year",
+                                                defaultValue = ApplicationConstants.DEFAULT_YEAR) Integer year,
                                         @RequestParam(value = "page",
                                                 defaultValue = ApplicationConstants.DEFAULT_PAGE_NUMBER) Integer page,
                                         @RequestParam(value = "size",
                                                 defaultValue = ApplicationConstants.DEFAULT_PAGE_SIZE) Integer size
     ) {
-        return ResponseEntity.ok(cashFlowService.getAllCashFlow(type,page, size));
+        return ResponseEntity.ok(cashFlowService.getAllCashFlow(type,month,year, page, size));
     }
 
     @GetMapping("/byName/{name}")

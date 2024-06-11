@@ -26,10 +26,10 @@ public class CashFlowService {
     @Transactional
     public ApiResponse saveCashFlow(CashFlowDto cashFlowDto) {
         try {
-            CashFlow cashFlow=new CashFlow();
-            if (cashFlowDto.getId()!=null){
-                cashFlow=cashFlowRepository.findById(cashFlowDto.getId())
-                        .orElseThrow(() ->  new IllegalStateException("Credit with this ID not fount"));
+            CashFlow cashFlow = new CashFlow();
+            if (cashFlowDto.getId() != null) {
+                cashFlow = cashFlowRepository.findById(cashFlowDto.getId())
+                        .orElseThrow(() -> new IllegalStateException("Credit with this ID not fount"));
             }
             cashFlow.setName(cashFlowDto.getName());
             cashFlow.setAmount(cashFlowDto.getAmount());
@@ -37,27 +37,45 @@ public class CashFlowService {
             cashFlow.setCurType(cashFlowDto.getCur_type());
             cashFlow.setDate(cashFlowDto.getDate());
             cashFlowRepository.save(cashFlow);
-            return new ApiResponse(cashFlowDto.getId()!=null?"Edited":"Saved",true);
-        }catch (Exception e){
-            return new ApiResponse("Error",false);
+            return new ApiResponse(cashFlowDto.getId() != null ? "Edited" : "Saved", true);
+        } catch (Exception e) {
+            return new ApiResponse("Error", false);
         }
     }
 
     @Transactional
-    public ApiResponse getAllCashFlow(Integer type, Integer page, Integer size) {
+    public ApiResponse getAllCashFlow(Integer type, Integer month, Integer year, Integer page, Integer size) {
         Page<CashFlow> flowPage;
-        if (type==1) {
-            flowPage = cashFlowRepository.findAllByCashFlowTypeOrderByDateDesc(true,CommonUtills.simplePageable(page, size));
-        }else if (type==-1){
-            flowPage = cashFlowRepository.findAllByCashFlowTypeOrderByDateDesc(false,CommonUtills.simplePageable(page, size));
-        }else {
-            flowPage = cashFlowRepository.findAllByOrderByDateDesc(CommonUtills.simplePageable(page, size));
+        if (type == 1) {
+            if (month == 0) {
+                flowPage = cashFlowRepository.findAllByCashFlowTypeOrderByDateDesc
+                        (true, CommonUtills.simplePageable(page, size));
+            } else {
+                flowPage = cashFlowRepository.findAllByCashFlowTypeAndMonthAndYearOrderByDateDesc
+                        (true, month, year, CommonUtills.simplePageable(page, size));
+            }
+        } else if (type == -1) {
+            if (month == 0) {
+                flowPage = cashFlowRepository.findAllByCashFlowTypeOrderByDateDesc
+                        (false, CommonUtills.simplePageable(page, size));
+            } else {
+                flowPage = cashFlowRepository.findAllByCashFlowTypeAndMonthAndYearOrderByDateDesc
+                        (false, month, year, CommonUtills.simplePageable(page, size));
+            }
+        } else {
+            if (month == 0) {
+                flowPage = cashFlowRepository.findAllByOrderByDateDesc
+                        (CommonUtills.simplePageable(page, size));
+            } else {
+                flowPage = cashFlowRepository.findAllByMonthAndYearOrderByDateDesc
+                        (month, year, CommonUtills.simplePageable(page, size));
+            }
         }
-        Double rate=Double.parseDouble(currency.getRate());
-        Double incomeSumUSD= (cashFlowRepository.sumOfIncomeInUSD()+ (cashFlowRepository.sumOfIncomeInUZS()/rate));
-        Double incomeSumUZS= incomeSumUSD*rate;
-        Double outcomeSumUSD= (cashFlowRepository.sumOfOutcomeInUSD()+ (cashFlowRepository.sumOfOutcomeInUZS()/rate));
-        Double outcomeSumUZS= outcomeSumUSD*rate;
+        Double rate = Double.parseDouble(currency.getRate());
+        Double incomeSumUSD = (cashFlowRepository.sumOfIncomeInUSD() + (cashFlowRepository.sumOfIncomeInUZS() / rate));
+        Double incomeSumUZS = incomeSumUSD * rate;
+        Double outcomeSumUSD = (cashFlowRepository.sumOfOutcomeInUSD() + (cashFlowRepository.sumOfOutcomeInUZS() / rate));
+        Double outcomeSumUZS = outcomeSumUSD * rate;
         return new ApiResponse("Success",
                 true,
                 flowPage.getTotalElements(),
@@ -68,8 +86,9 @@ public class CashFlowService {
                 outcomeSumUZS,
                 flowPage.getContent().stream().map(this::getCashFlowDtoFromCashFlow).collect(Collectors.toList()));
     }
-    public CashFlowDto getCashFlowDtoFromCashFlow(CashFlow cashFlow){
-        CashFlowDto flowDto=new CashFlowDto();
+
+    public CashFlowDto getCashFlowDtoFromCashFlow(CashFlow cashFlow) {
+        CashFlowDto flowDto = new CashFlowDto();
         flowDto.setId(cashFlow.getId());
         flowDto.setName(cashFlow.getName());
         flowDto.setAmount(cashFlow.getAmount());
@@ -81,16 +100,16 @@ public class CashFlowService {
 
     @Transactional
     public ApiResponse removeCashById(String id) {
-            try {
-                cashFlowRepository.deleteById(id);
-                return new ApiResponse("Deleted",true);
-            }catch (Exception e){
-                return new ApiResponse("Error in deleting", false);
-            }
+        try {
+            cashFlowRepository.deleteById(id);
+            return new ApiResponse("Deleted", true);
+        } catch (Exception e) {
+            return new ApiResponse("Error in deleting", false);
+        }
     }
 
     @Transactional
-    public ApiResponse getCashByName(String name,Integer page, Integer size) {
+    public ApiResponse getCashByName(String name, Integer page, Integer size) {
 
         try {
             Page<CashFlow> flowPage = cashFlowRepository.findAllByNameContainingIgnoreCase(name, CommonUtills.simplePageable(page, size));

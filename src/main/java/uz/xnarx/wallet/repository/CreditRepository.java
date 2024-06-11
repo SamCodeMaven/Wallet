@@ -7,7 +7,7 @@ import uz.xnarx.wallet.entity.Credit;
 
 public interface CreditRepository extends JpaRepository<Credit, String> {
 
-    Page<Credit> findAllByOrderByEndDateDesc(Pageable pageable);
+    Page<Credit> findAllByOrderByEndDateAsc(Pageable pageable);
 
     Page<Credit> findAllByNameContainingIgnoreCase(String name, Pageable pageable);
 

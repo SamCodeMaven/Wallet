@@ -53,7 +53,7 @@ public class CreditService {
 
     @Transactional
     public ApiResponse getAllCredit(Integer page, Integer size) {
-        Page<Credit> creditPage=creditRepository.findAllByOrderByEndDateDesc(CommonUtills.simplePageable(page,size));
+        Page<Credit> creditPage=creditRepository.findAllByOrderByEndDateAsc(CommonUtills.simplePageable(page,size));
 
         return new ApiResponse("Success",
                 true,

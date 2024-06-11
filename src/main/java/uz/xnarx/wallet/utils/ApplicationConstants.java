@@ -13,4 +13,7 @@ public interface ApplicationConstants {
     Integer MAX_PAGE_SIZE=20;
 
     String DEFAULT_CASH_FLOW_TYPE="0";
+
+    String DEFAULT_MOTH="0";
+    String DEFAULT_YEAR="0";
 }
