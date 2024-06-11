@@ -9,6 +9,7 @@ import uz.xnarx.wallet.entity.CashFlow;
 public interface CashFlowRepository extends JpaRepository<CashFlow, String> {
 
     Page<CashFlow> findAllByOrderByDateDesc(Pageable pageable);
+    Page<CashFlow> findAllByCashFlowTypeAndOrderByDateDesc(Boolean cashFlowType, Pageable pageable);
 
     Page<CashFlow> findAllByNameContainingIgnoreCase(String name, Pageable pageable);
 

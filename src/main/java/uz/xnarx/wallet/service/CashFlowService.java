@@ -41,8 +41,15 @@ public class CashFlowService {
         }
     }
 
-    public ApiResponse getAllCashFlow(Integer page, Integer size) {
-        Page<CashFlow> flowPage=cashFlowRepository.findAllByOrderByDateDesc(CommonUtills.simplePageable(page,size));
+    public ApiResponse getAllCashFlow(Integer type, Integer page, Integer size) {
+        Page<CashFlow> flowPage;
+        if (type==1) {
+            flowPage = cashFlowRepository.findAllByCashFlowTypeAndOrderByDateDesc(true,CommonUtills.simplePageable(page, size));
+        }else if (type==-1){
+            flowPage = cashFlowRepository.findAllByCashFlowTypeAndOrderByDateDesc(false,CommonUtills.simplePageable(page, size));
+        }else {
+            flowPage = cashFlowRepository.findAllByOrderByDateDesc(CommonUtills.simplePageable(page, size));
+        }
         Double rate=Double.parseDouble(currency.getRate());
         Double incomeSumUSD= (cashFlowRepository.sumOfIncomeInUSD()+ (cashFlowRepository.sumOfIncomeInUZS()/rate));
         Double incomeSumUZS= incomeSumUSD*rate;
